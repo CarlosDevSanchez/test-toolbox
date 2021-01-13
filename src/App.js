@@ -9,7 +9,8 @@ class Home extends React.Component{
   constructor(props){
     super(props);
     this.state = {
-      request: ''
+      request: '',
+      responses: []
     }
     this.handlerChange = this.handlerChange.bind(this);
     this.handlerSubmit = this.handlerSubmit.bind(this);
@@ -25,14 +26,21 @@ class Home extends React.Component{
   handlerSubmit(){
     const { request } = this.state;
     fetch('http://localhost:9000/iecho?text=' + request)
-    .then(result => {
-      console.log(result);
+    .then(res => {
+      return res.json();
+    })
+    .then(res => {
+      const { responses } = this.state;
+      responses.push(res.text)
+      this.setState({
+        responses
+      })
     })
     .catch(err => console.log(err));
   }
 
   render(){
-    const { request } = this.state;
+    const { request, responses } = this.state;
     return(
     <Container>
       <Navbar>
@@ -54,7 +62,11 @@ class Home extends React.Component{
               <h1>Result:</h1>
               <Container stylesheet="row m-5 justify-content-center">
                 <Container stylesheet="col-md-5">
-                  <Input type="text" defaultValue={'value'} stylesheet="form-control" />
+                  {responses &&
+                    responses.map((text, key) => (
+                      <Input type="text" defaultValue={text} stylesheet="form-control mb-1" key={key} readOnly={true} />
+                    ))
+                  }
                 </Container>
               </Container>
             </Card>
